@@ -1,0 +1,8 @@
+<!-- users/templates/users/signup.html -->
+<h1>Sign Up</h1>
+<form action="{% url 'signup' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Sign Up</button>
+</form>
+<p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>

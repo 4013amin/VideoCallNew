@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-z99pomn$%biaz+4i@vaopd2wp(%+-^s&1jbbhc!4=iylhf_6#k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users',
+    'videocall',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +56,7 @@ ROOT_URLCONF = 'Video.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,8 +68,20 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Video.wsgi.application'
+BASE_DIR = Path(__file__).resolve().parent.parent
+print("DEBUG: BASE_DIR is:", BASE_DIR) # این خط را اضافه کنید
+print("DEBUG: Expected templates directory is:", BASE_DIR / 'templates') # و این خط را
 
+
+# WSGI_APPLICATION = 'Video.wsgi.application'
+ASGI_APPLICATION = 'Video.asgi.application'
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

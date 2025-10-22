@@ -1,0 +1,12 @@
+<!-- Video/templates/home.html -->
+<h1>Welcome!</h1>
+{% if user.is_authenticated %}
+    <p>Hello, {{ user.username }}!</p>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    <p><a href="{% url 'video_chat_lobby' %}">Start Video Chat</a></p>
+{% else %}
+    <p>Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'signup' %}">sign up</a>.</p>
+{% endif %}
