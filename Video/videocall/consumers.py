@@ -16,7 +16,7 @@ class VideoCallConsumer(AsyncWebsocketConsumer):
             return
 
         self.user = self.scope["user"]
-        self.peer_id = self.scope['url_route']['kwargs']['peer_id'] # Get Peer ID from URL
+        self.peer_id = self.scope['url_route']['kwargs']['peer_id']
 
         # Add user to active_users and queue
         VideoCallConsumer.active_users[self.user.id] = self.peer_id
