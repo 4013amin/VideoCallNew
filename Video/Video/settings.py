@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'django-insecure-z99pomn$%biaz+4i@vaopd2wp(%+-^s&1jbbhc!4=iylhf_6#k
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -69,13 +67,11 @@ TEMPLATES = [
 ]
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-print("DEBUG: BASE_DIR is:", BASE_DIR) # این خط را اضافه کنید
-print("DEBUG: Expected templates directory is:", BASE_DIR / 'templates') # و این خط را
-
+print("DEBUG: BASE_DIR is:", BASE_DIR)
+print("DEBUG: Expected templates directory is:", BASE_DIR / 'templates')
 
 # WSGI_APPLICATION = 'Video.wsgi.application'
 ASGI_APPLICATION = 'Video.asgi.application'
-
 
 CHANNEL_LAYERS = {
     'default': {
@@ -92,7 +88,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -112,7 +107,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -123,7 +117,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
