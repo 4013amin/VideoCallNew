@@ -1,18 +1,14 @@
-# videocall/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from users.models import Profile
+from users.models import Profile
+
 
 
 @login_required
 def video_chat_lobby(request):
-    # Pass coin count to the template
-    try:
-        profile = request.user.profile
-    except Profile.DoesNotExist:
-        # Create profile if it somehow doesn't exist
-        profile = Profile.objects.create(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
 
     return render(request, 'videocall/lobby.html', {'coins': profile.coins})
 
