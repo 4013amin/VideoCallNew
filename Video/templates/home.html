@@ -1,12 +1,54 @@
-<!-- Video/templates/home.html -->
-<h1>Welcome!</h1>
-{% if user.is_authenticated %}
-    <p>Hello, {{ user.username }}!</p>
-    <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-    <p><a href="{% url 'video_chat_lobby' %}">Start Video Chat</a></p>
-{% else %}
-    <p>Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'signup' %}">sign up</a>.</p>
-{% endif %}
+{% extends 'base.html' %}
+{% block title %}Home — VideoCall{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto text-center py-10 md:py-20">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold uppercase tracking-wider mb-6">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live Now
+    </div>
+    
+    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-slate-400">
+        Connect with random people <span class="text-primary">instantly</span>.
+    </h1>
+    
+    <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+        Private, fast, and secure video chat. Spend coins to start a call and meet new friends around the world in seconds.
+    </p>
+
+    {% if user.is_authenticated %}
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a class="w-full sm:w-auto px-8 py-4 bg-primary hover:bg-indigo-600 text-white rounded-xl font-bold text-lg shadow-xl shadow-indigo-500/20 transition transform hover:-translate-y-1" href="{% url 'video_chat_lobby' %}">
+                <i class="fa-solid fa-video mr-2"></i> Start Video Chat
+            </a>
+        </div>
+    {% else %}
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a class="w-full sm:w-auto px-8 py-4 bg-primary hover:bg-indigo-600 text-white rounded-xl font-bold text-lg shadow-xl shadow-indigo-500/20 transition transform hover:-translate-y-1" href="{% url 'signup' %}">
+                Get Started
+            </a>
+            <a class="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-lg border border-slate-700 transition" href="{% url 'login' %}">
+                Login
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Feature Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 text-left">
+        <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+            <div class="w-10 h-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-bolt"></i></div>
+            <h3 class="font-bold text-white mb-2">Fast Connections</h3>
+            <p class="text-slate-400 text-sm">Low latency video calls powered by P2P technology.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+            <div class="w-10 h-10 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-coins"></i></div>
+            <h3 class="font-bold text-white mb-2">Coin System</h3>
+            <p class="text-slate-400 text-sm">Fair usage policy with a simple coin-based system.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+            <div class="w-10 h-10 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3 class="font-bold text-white mb-2">Secure & Private</h3>
+            <p class="text-slate-400 text-sm">Direct connections. We don't store your video streams.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

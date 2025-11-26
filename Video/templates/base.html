@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}VideoCall{% endblock %}</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS (CDN for rapid dev) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        primary: '#6366f1', // Indigo 500
+                        secondary: '#1e293b', // Slate 800
+                        accent: '#8b5cf6', // Violet 500
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen antialiased selection:bg-primary selection:text-white">
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 transition-all duration-300 glass-panel border-b border-white/5">
+        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+            <a class="text-2xl font-bold tracking-tight flex items-center gap-2 text-white hover:text-primary transition" href="{% url 'home' %}">
+                <i class="fa-solid fa-video text-primary"></i> VideoCall
+            </a>
+            
+            <nav class="flex items-center gap-4">
+                {% if user.is_authenticated %}
+                    <div class="hidden md:flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+                        <i class="fa-solid fa-user-circle text-gray-400"></i>
+                        <span class="text-sm font-medium">{{ user.username }}</span>
+                    </div>
+                    <a href="{% url 'video_chat_lobby' %}" class="hidden md:inline-flex bg-primary hover:bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold transition text-sm shadow-lg shadow-indigo-500/30">
+                        Start Chat
+                    </a>
+                    <form class="inline-flex" action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button class="text-gray-400 hover:text-white text-sm font-medium transition flex items-center gap-2">
+                            <i class="fa-solid fa-sign-out-alt"></i> Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-gray-300 hover:text-white font-medium transition">Login</a>
+                    <a href="{% url 'signup' %}" class="bg-white text-slate-900 hover:bg-gray-100 px-5 py-2 rounded-lg font-bold transition text-sm">Sign Up</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 pt-24 pb-12 flex flex-col justify-center">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-6 mt-auto">
+        <div class="container mx-auto px-4 text-center text-slate-500 text-sm">
+            <p>&copy; {% now "Y" %} VideoCall. Connect freely.</p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
