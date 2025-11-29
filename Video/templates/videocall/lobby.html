@@ -2,244 +2,250 @@
 {% block title %}Lobby — VideoCall{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto w-full">
-    
-    <!-- Top Bar: Coins & Status -->
-    <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-white">Video Chat Lobby</h2>
-            <p id="status-text" class="text-slate-400 text-sm">Ready to connect...</p>
-        </div>
-        
-        <div class="flex items-center gap-4 glass-panel px-4 py-2 rounded-xl">
-            <div class="flex items-center gap-2 text-yellow-400">
-                <i class="fa-solid fa-coins"></i>
-                <span class="font-bold text-xl" id="coin-count">{{ coins }}</span>
+    <div class="max-w-5xl mx-auto w-full">
+
+        <!-- Top Bar: Coins & Status -->
+        <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-white">Video Chat Lobby</h2>
+                <p id="status-text" class="text-slate-400 text-sm">Ready to connect...</p>
             </div>
-            <form action="{% url 'add_coins' %}" method="post">
-                {% csrf_token %}
-                <button class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition" type="submit">
-                    + Buy 5
+
+            <div class="flex items-center gap-4 glass-panel px-4 py-2 rounded-xl">
+                <div class="flex items-center gap-2 text-yellow-400">
+                    <i class="fa-solid fa-coins"></i>
+                    <span class="font-bold text-xl" id="coin-count">{{ coins }}</span>
+                </div>
+                <form action="{% url 'add_coins' %}" method="post">
+                    {% csrf_token %}
+                    <a href="{% url 'purchase' %}"
+                       class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition flex items-center gap-1 decoration-0">
+                        + Buy Coins
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Video Area -->
+        <div class="relative w-full aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-slate-800 group">
+
+            <!-- Waiting State / Remote Video Container -->
+            <div id="remoteVideos" class="w-full h-full flex items-center justify-center bg-slate-900">
+                <!-- Placeholder when no video -->
+                <div id="placeholder" class="text-center opacity-50">
+                    <i class="fa-solid fa-satellite-dish text-6xl text-slate-700 mb-4 animate-pulse"></i>
+                    <p class="text-slate-500">Click "Find Partner" to start</p>
+                </div>
+            </div>
+
+            <!-- Local Video (Picture in Picture) -->
+            <div class="absolute top-4 right-4 w-32 md:w-48 aspect-video bg-slate-800 rounded-xl overflow-hidden shadow-lg border-2 border-slate-700 z-10">
+                <video id="localVideo" class="w-full h-full object-cover transform -scale-x-100" autoplay muted
+                       playsinline></video>
+                <div class="absolute bottom-1 left-2 text-[10px] font-bold text-white/70 bg-black/40 px-1 rounded">You
+                </div>
+            </div>
+
+            <!-- Controls Bar (Floating) -->
+            <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-4 z-20">
+                <button id="findPartnerBtn"
+                        class="flex items-center gap-2 bg-primary hover:bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-indigo-500/40 transition-all hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-random"></i>
+                    <span>Find Random Partner</span>
                 </button>
-            </form>
-        </div>
-    </div>
 
-    <!-- Video Area -->
-    <div class="relative w-full aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-slate-800 group">
-        
-        <!-- Waiting State / Remote Video Container -->
-        <div id="remoteVideos" class="w-full h-full flex items-center justify-center bg-slate-900">
-            <!-- Placeholder when no video -->
-            <div id="placeholder" class="text-center opacity-50">
-                <i class="fa-solid fa-satellite-dish text-6xl text-slate-700 mb-4 animate-pulse"></i>
-                <p class="text-slate-500">Click "Find Partner" to start</p>
+                <button id="endCallBtn"
+                        class="hidden flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-red-500/40 transition-all hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-phone-slash"></i>
+                    <span>End Call</span>
+                </button>
             </div>
         </div>
-
-        <!-- Local Video (Picture in Picture) -->
-        <div class="absolute top-4 right-4 w-32 md:w-48 aspect-video bg-slate-800 rounded-xl overflow-hidden shadow-lg border-2 border-slate-700 z-10">
-            <video id="localVideo" class="w-full h-full object-cover transform -scale-x-100" autoplay muted playsinline></video>
-            <div class="absolute bottom-1 left-2 text-[10px] font-bold text-white/70 bg-black/40 px-1 rounded">You</div>
-        </div>
-
-        <!-- Controls Bar (Floating) -->
-        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-4 z-20">
-            <button id="findPartnerBtn" class="flex items-center gap-2 bg-primary hover:bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-indigo-500/40 transition-all hover:scale-105 active:scale-95">
-                <i class="fa-solid fa-random"></i>
-                <span>Find Random Partner</span>
-            </button>
-            
-            <button id="endCallBtn" class="hidden flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-red-500/40 transition-all hover:scale-105 active:scale-95">
-                <i class="fa-solid fa-phone-slash"></i>
-                <span>End Call</span>
-            </button>
-        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-<script>
-    const localVideo = document.getElementById('localVideo');
-    const findPartnerBtn = document.getElementById('findPartnerBtn');
-    const endCallBtn = document.getElementById('endCallBtn');
-    const coinCountSpan = document.getElementById('coin-count');
-    const remoteContainer = document.getElementById('remoteVideos');
-    const placeholder = document.getElementById('placeholder');
-    const statusText = document.getElementById('status-text');
-    
-    let localStream;
-    let peer;
-    let currentCall;
-    let partnerPeerId = null;
-    let ws;
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        const localVideo = document.getElementById('localVideo');
+        const findPartnerBtn = document.getElementById('findPartnerBtn');
+        const endCallBtn = document.getElementById('endCallBtn');
+        const coinCountSpan = document.getElementById('coin-count');
+        const remoteContainer = document.getElementById('remoteVideos');
+        const placeholder = document.getElementById('placeholder');
+        const statusText = document.getElementById('status-text');
 
-    function updateStatus(msg, type='normal') {
-        statusText.textContent = msg;
-        if(type === 'error') statusText.classList.add('text-red-400');
-        else statusText.classList.remove('text-red-400');
-    }
+        let localStream;
+        let peer;
+        let currentCall;
+        let partnerPeerId = null;
+        let ws;
 
-    function setOutOfCoinsUI() {
-        findPartnerBtn.disabled = true;
-        findPartnerBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Out of Coins';
-        findPartnerBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        updateStatus("You need more coins to start a chat.", 'error');
-    }
-
-    if (parseInt(coinCountSpan.textContent) <= 0) {
-        setOutOfCoinsUI();
-    }
-
-    async function getMedia() {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            localVideo.srcObject = localStream;
-        } catch (e) {
-            console.error('Could not get user media', e);
-            updateStatus('Please allow camera/microphone access.', 'error');
+        function updateStatus(msg, type = 'normal') {
+            statusText.textContent = msg;
+            if (type === 'error') statusText.classList.add('text-red-400');
+            else statusText.classList.remove('text-red-400');
         }
-    }
-    getMedia();
 
-    function connectWebSocket(peerId) {
-        const ws_protocol = window.location.protocol === "https:" ? "wss" : "ws";
-        const wsUrl = `${ws_protocol}://${window.location.host}/ws/call/${peerId}/`;
-        ws = new WebSocket(wsUrl);
-
-        ws.onopen = () => console.log("WebSocket connected.");
-
-        ws.onmessage = async e => {
-            const data = JSON.parse(e.data);
-            
-            switch (data.type) {
-                case 'partner_found':
-                    partnerPeerId = data.partner_peer_id;
-                    updateStatus('Partner found! Connecting...');
-                    makeCall(partnerPeerId);
-                    break;
-                case 'waiting_for_partner':
-                    findPartnerBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Searching...';
-                    findPartnerBtn.disabled = true;
-                    updateStatus('Looking for a random partner...');
-                    break;
-                case 'out_of_coins':
-                    setOutOfCoinsUI();
-                    break;
-                case 'coin_update':
-                    coinCountSpan.textContent = data.coins;
-                    // Animation for coin update
-                    coinCountSpan.parentElement.classList.add('scale-125');
-                    setTimeout(()=> coinCountSpan.parentElement.classList.remove('scale-125'), 200);
-                    break;
-                case 'call_ended_by_partner':
-                    updateStatus('Partner ended the call.');
-                    endCall();
-                    break;
-            }
-        };
-    }
-
-    function makeCall(peerId) {
-        if (!peer) return;
-        currentCall = peer.call(peerId, localStream);
-        currentCall.on('stream', stream => addRemoteVideoStream(peerId, stream));
-        toggleCallUI(true);
-    }
-
-    function addRemoteVideoStream(peerId, stream) {
-        // Remove existing video if any
-        remoteContainer.innerHTML = ''; 
-        
-        const v = document.createElement('video');
-        v.autoplay = true; 
-        v.playsInline = true; 
-        v.srcObject = stream; 
-        v.id = 'peer-' + peerId;
-        v.className = 'w-full h-full object-cover'; // Tailwind classes for full fit
-        remoteContainer.appendChild(v);
-        updateStatus('Connected to partner.');
-    }
-
-    function toggleCallUI(isInCall) {
-        if (isInCall) {
-            endCallBtn.classList.remove('hidden');
-            findPartnerBtn.classList.add('hidden');
-            placeholder.classList.add('hidden');
-        } else {
-            endCallBtn.classList.add('hidden');
-            findPartnerBtn.classList.remove('hidden');
-            findPartnerBtn.disabled = false;
-            findPartnerBtn.innerHTML = '<i class="fa-solid fa-random"></i> Find Random Partner';
-            remoteContainer.innerHTML = '';
-            remoteContainer.appendChild(placeholder);
-            placeholder.classList.remove('hidden');
-            updateStatus('Call ended. Ready for next.');
+        function setOutOfCoinsUI() {
+            findPartnerBtn.disabled = true;
+            findPartnerBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Out of Coins';
+            findPartnerBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            updateStatus("You need more coins to start a chat.", 'error');
         }
-    }
 
-    function endCall() {
-        if (currentCall) currentCall.close();
-        
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ 'type': 'end_call' }));
-        }
-        
-        currentCall = null; 
-        partnerPeerId = null;
-        toggleCallUI(false);
-        
         if (parseInt(coinCountSpan.textContent) <= 0) {
             setOutOfCoinsUI();
         }
-    }
 
-    findPartnerBtn.addEventListener('click', () => {
-        if (parseInt(coinCountSpan.textContent) <= 0) return;
-        
-        findPartnerBtn.disabled = true; 
-        findPartnerBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
-        
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ 'type': 'find_partner' }));
+        async function getMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                localVideo.srcObject = localStream;
+            } catch (e) {
+                console.error('Could not get user media', e);
+                updateStatus('Please allow camera/microphone access.', 'error');
+            }
         }
-    });
 
-    endCallBtn.addEventListener('click', endCall);
+        getMedia();
 
-    window.addEventListener('beforeunload', () => {
-        if (peer) peer.destroy();
-        if (ws) ws.close();
-    });
+        function connectWebSocket(peerId) {
+            const ws_protocol = window.location.protocol === "https:" ? "wss" : "ws";
+            const wsUrl = `${ws_protocol}://${window.location.host}/ws/call/${peerId}/`;
+            ws = new WebSocket(wsUrl);
 
-    // Initialize peer
-    (function tryInit(){
-        if (localStream) {
-            peer = new Peer();
-            peer.on('open', id => {
-                console.log('My Peer ID:', id);
-                connectWebSocket(id);
-            });
+            ws.onopen = () => console.log("WebSocket connected.");
 
-            peer.on('call', call => {
-                call.answer(localStream);
-                call.on('stream', stream => {
-                    addRemoteVideoStream(call.peer, stream);
-                    partnerPeerId = call.peer;
+            ws.onmessage = async e => {
+                const data = JSON.parse(e.data);
+
+                switch (data.type) {
+                    case 'partner_found':
+                        partnerPeerId = data.partner_peer_id;
+                        updateStatus('Partner found! Connecting...');
+                        makeCall(partnerPeerId);
+                        break;
+                    case 'waiting_for_partner':
+                        findPartnerBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Searching...';
+                        findPartnerBtn.disabled = true;
+                        updateStatus('Looking for a random partner...');
+                        break;
+                    case 'out_of_coins':
+                        setOutOfCoinsUI();
+                        break;
+                    case 'coin_update':
+                        coinCountSpan.textContent = data.coins;
+                        // Animation for coin update
+                        coinCountSpan.parentElement.classList.add('scale-125');
+                        setTimeout(() => coinCountSpan.parentElement.classList.remove('scale-125'), 200);
+                        break;
+                    case 'call_ended_by_partner':
+                        updateStatus('Partner ended the call.');
+                        endCall();
+                        break;
+                }
+            };
+        }
+
+        function makeCall(peerId) {
+            if (!peer) return;
+            currentCall = peer.call(peerId, localStream);
+            currentCall.on('stream', stream => addRemoteVideoStream(peerId, stream));
+            toggleCallUI(true);
+        }
+
+        function addRemoteVideoStream(peerId, stream) {
+            // Remove existing video if any
+            remoteContainer.innerHTML = '';
+
+            const v = document.createElement('video');
+            v.autoplay = true;
+            v.playsInline = true;
+            v.srcObject = stream;
+            v.id = 'peer-' + peerId;
+            v.className = 'w-full h-full object-cover'; // Tailwind classes for full fit
+            remoteContainer.appendChild(v);
+            updateStatus('Connected to partner.');
+        }
+
+        function toggleCallUI(isInCall) {
+            if (isInCall) {
+                endCallBtn.classList.remove('hidden');
+                findPartnerBtn.classList.add('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                endCallBtn.classList.add('hidden');
+                findPartnerBtn.classList.remove('hidden');
+                findPartnerBtn.disabled = false;
+                findPartnerBtn.innerHTML = '<i class="fa-solid fa-random"></i> Find Random Partner';
+                remoteContainer.innerHTML = '';
+                remoteContainer.appendChild(placeholder);
+                placeholder.classList.remove('hidden');
+                updateStatus('Call ended. Ready for next.');
+            }
+        }
+
+        function endCall() {
+            if (currentCall) currentCall.close();
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({'type': 'end_call'}));
+            }
+
+            currentCall = null;
+            partnerPeerId = null;
+            toggleCallUI(false);
+
+            if (parseInt(coinCountSpan.textContent) <= 0) {
+                setOutOfCoinsUI();
+            }
+        }
+
+        findPartnerBtn.addEventListener('click', () => {
+            if (parseInt(coinCountSpan.textContent) <= 0) return;
+
+            findPartnerBtn.disabled = true;
+            findPartnerBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({'type': 'find_partner'}));
+            }
+        });
+
+        endCallBtn.addEventListener('click', endCall);
+
+        window.addEventListener('beforeunload', () => {
+            if (peer) peer.destroy();
+            if (ws) ws.close();
+        });
+
+        // Initialize peer
+        (function tryInit() {
+            if (localStream) {
+                peer = new Peer();
+                peer.on('open', id => {
+                    console.log('My Peer ID:', id);
+                    connectWebSocket(id);
                 });
-                currentCall = call;
-                toggleCallUI(true);
-            });
-            
-            peer.on('error', err => {
-                console.error(err);
-                updateStatus('Connection error. Refreshing...', 'error');
-            });
 
-        } else setTimeout(tryInit, 300);
-    })();
+                peer.on('call', call => {
+                    call.answer(localStream);
+                    call.on('stream', stream => {
+                        addRemoteVideoStream(call.peer, stream);
+                        partnerPeerId = call.peer;
+                    });
+                    currentCall = call;
+                    toggleCallUI(true);
+                });
 
-</script>
+                peer.on('error', err => {
+                    console.error(err);
+                    updateStatus('Connection error. Refreshing...', 'error');
+                });
+
+            } else setTimeout(tryInit, 300);
+        })();
+
+    </script>
 {% endblock %}

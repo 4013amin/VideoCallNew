@@ -9,7 +9,6 @@ from users.models import Profile
 @login_required
 def video_chat_lobby(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-
     return render(request, 'videocall/lobby.html', {'coins': profile.coins})
 
 
