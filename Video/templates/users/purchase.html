@@ -1,0 +1,25 @@
+<!-- templates/users/purchase.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>خرید سکه</title>
+</head>
+<body>
+    <h2>خرید سکه</h2>
+    <p>موجودی فعلی شما: {{ user.profile.coins }} سکه</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label>تعداد سکه:</label>
+        <select name="coins">
+            <option value="10">۱۰ سکه (۱۰,۰۰۰ تومان)</option>
+            <option value="20">۲۰ سکه (۲۰,۰۰۰ تومان)</option>
+            <option value="50">۵۰ سکه (۵۰,۰۰۰ تومان)</option>
+        </select>
+        <button type="submit">پرداخت و خرید</button>
+    </form>
+
+    <br>
+    <a href="{% url 'home' %}">بازگشت به خانه</a>
+</body>
+</html>
