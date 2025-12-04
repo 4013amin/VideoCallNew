@@ -16,8 +16,7 @@ def video_chat_lobby(request):
 @login_required
 @require_POST
 def add_coins_view(request):
-    """A simple view to simulate purchasing coins."""
     profile = request.user.profile
-    profile.coins += 5  # Add 5 coins per "purchase"
+    profile.coins += 5  
     profile.save()
-    return redirect('lobby')  # Redirect back to the lobby
+    return redirect('lobby')  
