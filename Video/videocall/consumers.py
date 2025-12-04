@@ -1,144 +1,140 @@
 # videocall/consumers.py
 import json
+import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from django.contrib.auth.models import User
-from users.models import Profile  # <<< وارد کردن مدل پروفایل
-import asyncio
+from users.models import Profile
 
-
-# --- Async Database Helpers ---
+# --- Database Helpers ---
 @database_sync_to_async
-def get_user_profile(user):
-    return Profile.objects.get(user=user)
-
+def get_user_coins(user):
+    return user.profile.coins
 
 @database_sync_to_async
 def deduct_coin(user):
-    profile = Profile.objects.get(user=user)
-    if profile.coins > 0:
-        profile.coins -= 1
-        profile.save()
-        return profile.coins
-    return 0
-
+    try:
+        profile = Profile.objects.select_for_update().get(user=user)
+        if profile.coins > 0:
+            profile.coins -= 1
+            profile.save()
+            return profile.coins
+    except Exception as e:
+        print(f"Error deducting coin: {e}")
+    return -1
 
 class VideoCallConsumer(AsyncWebsocketConsumer):
-    active_users = {}
-    waiting_users = asyncio.Queue()
-    # A dictionary to track active calls {user_id: partner_id}
-    active_calls = {}
+    # صف انتظار سراسری (در حافظه)
+    waiting_users = []
+    # قفل برای جلوگیری از تداخل درخواست‌ها
+    queue_lock = asyncio.Lock()
 
     async def connect(self):
-        if not self.scope["user"].is_authenticated:
+        self.user = self.scope["user"]
+        
+        if not self.user.is_authenticated:
             await self.close()
             return
 
-        self.user = self.scope["user"]
         self.peer_id = self.scope['url_route']['kwargs']['peer_id']
-        VideoCallConsumer.active_users[self.user.id] = self.peer_id
+        self.room_group_name = f"user_{self.user.id}"
 
-        print(f"User {self.user.username} (Peer ID: {self.peer_id}) connected.")
-
-        await self.channel_layer.group_add(str(self.user.id), self.channel_name)
+        # پیوستن به گروه اختصاصی کاربر
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
         await self.accept()
+        print(f"User {self.user.username} connected. PeerID: {self.peer_id}")
 
     async def disconnect(self, close_code):
-        if self.user.id in VideoCallConsumer.active_users:
-            del VideoCallConsumer.active_users[self.user.id]
-
-        # If user was in a call, notify the partner
-        partner_id = VideoCallConsumer.active_calls.pop(self.user.id, None)
-        if partner_id:
-            VideoCallConsumer.active_calls.pop(partner_id, None)
-            await self.channel_layer.group_send(
-                str(partner_id),
-                {'type': 'call.ended.by.partner'}
-            )
-
+        # حذف کاربر از صف با رعایت قفل
+        async with VideoCallConsumer.queue_lock:
+            VideoCallConsumer.waiting_users = [
+                u for u in VideoCallConsumer.waiting_users 
+                if u['channel_name'] != self.channel_name
+            ]
+        
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
         print(f"User {self.user.username} disconnected.")
-        await self.channel_layer.group_discard(str(self.user.id), self.channel_name)
 
     async def receive(self, text_data):
         data = json.loads(text_data)
         message_type = data.get('type')
 
         if message_type == 'find_partner':
-            await self.find_partner_logic()
+            await self.match_logic()
+        
         elif message_type == 'end_call':
-            await self.handle_end_call()
+            # فقط لاگ می‌گیریم، قطع کردن واقعی در فرانت هندل می‌شود
+            pass
 
-    async def find_partner_logic(self):
-        # <<< CHECK COINS BEFORE QUEUING >>>
-        profile = await get_user_profile(self.user)
-        if profile.coins <= 0:
-            await self.send(text_data=json.dumps({
-                'type': 'out_of_coins',
-                'message': 'You have no coins left. Please purchase more to make a call.'
-            }))
-            print(f"User {self.user.username} has no coins. Call rejected.")
+    async def match_logic(self):
+        # 1. بررسی سکه
+        coins = await get_user_coins(self.user)
+        if coins <= 0:
+            await self.send(text_data=json.dumps({'type': 'out_of_coins'}))
             return
 
-        # Put user in waiting queue
-        if self.user.id not in [uid for uid, _ in VideoCallConsumer.waiting_users._queue]:
-            await VideoCallConsumer.waiting_users.put((self.user.id, self.peer_id))
-            print(f"User {self.user.username} added to waiting queue.")
+        async with VideoCallConsumer.queue_lock:
+            # 2. بررسی اینکه آیا کسی در صف هست؟
+            if len(VideoCallConsumer.waiting_users) > 0:
+                # برداشتن نفر اول از صف
+                partner = VideoCallConsumer.waiting_users.pop(0)
 
-        # Try to find a partner
-        if VideoCallConsumer.waiting_users.qsize() >= 2:
-            user1_id, peer1_id = await VideoCallConsumer.waiting_users.get()
-            user2_id, peer2_id = await VideoCallConsumer.waiting_users.get()
+                # جلوگیری از اتصال به خود (اگر کاربر سریع دو بار کلیک کرد)
+                if partner['user_id'] == self.user.id:
+                    VideoCallConsumer.waiting_users.append(partner)
+                    return
 
-            user1 = await User.objects.aget(id=user1_id)
-            user2 = await User.objects.aget(id=user2_id)
+                # 3. کسر سکه از من (درخواست دهنده فعلی)
+                new_coins = await deduct_coin(self.user)
+                
+                # برای پارتنر: چون سوکتش باز است، پیام می‌فرستیم تا کلاینت او درخواست کسر سکه کند 
+                # یا در اینجا هندل کنیم (ساده‌تر: فقط از کسی که مچ شد کم کنیم یا هر دو)
+                # در اینجا فرض بر کسر از هر دو است. اما چون Async است، پارتنر را هم خبر می‌کنیم.
 
-            # <<< DEDUCT COINS ON MATCH >>>
-            new_coins1 = await deduct_coin(user1)
-            new_coins2 = await deduct_coin(user2)
+                # 4. اطلاع به من (Initiator) -> تو باید تماس بگیری
+                await self.send(text_data=json.dumps({
+                    'type': 'partner_found',
+                    'role': 'initiator',
+                    'partner_peer_id': partner['peer_id'],
+                    'coins': new_coins
+                }))
 
-            VideoCallConsumer.active_calls[user1_id] = user2_id
-            VideoCallConsumer.active_calls[user2_id] = user1_id
+                # 5. اطلاع به پارتنر (Receiver) -> تو باید تماس دریافت کنی
+                await self.channel_layer.send(
+                    partner['channel_name'],
+                    {
+                        'type': 'send_match_info',
+                        'partner_peer_id': self.peer_id,
+                        'role': 'receiver'
+                    }
+                )
+                
+                print(f"Match success: {self.user.username} <--> UserID {partner['user_id']}")
 
-            # Notify users about the match
-            await self.channel_layer.group_send(str(user1_id), {
-                'type': 'partner.found', 'partner_peer_id': peer2_id
-            })
-            await self.channel_layer.group_send(str(user2_id), {
-                'type': 'partner.found', 'partner_peer_id': peer1_id
-            })
+            else:
+                # کسی نیست، من میرم تو صف
+                VideoCallConsumer.waiting_users.append({
+                    'channel_name': self.channel_name,
+                    'user_id': self.user.id,
+                    'peer_id': self.peer_id
+                })
+                await self.send(text_data=json.dumps({'type': 'waiting_in_queue'}))
 
-            # Notify users about their new coin balance
-            await self.channel_layer.group_send(str(user1_id), {
-                'type': 'coin.update', 'coins': new_coins1
-            })
-            await self.channel_layer.group_send(str(user2_id), {
-                'type': 'coin.update', 'coins': new_coins2
-            })
-
-            print(f"Matched {user1.username} with {user2.username}. Coins deducted.")
-        else:
-            await self.send(text_data=json.dumps({'type': 'waiting_for_partner'}))
-
-    async def handle_end_call(self):
-        partner_id = VideoCallConsumer.active_calls.pop(self.user.id, None)
-        if partner_id:
-            VideoCallConsumer.active_calls.pop(partner_id, None)
-            await self.channel_layer.group_send(
-                str(partner_id),
-                {'type': 'call.ended.by.partner'}
-            )
-        print(f"User {self.user.username} ended the call.")
-
-    # Handlers for group messages
-    async def partner_found(self, event):
+    # --- Group Message Handlers ---
+    
+    async def send_match_info(self, event):
+        # این متد برای پارتنر اجرا می‌شود
+        # اینجا سکه پارتنر را کم می‌کنیم
+        new_coins = await deduct_coin(self.user)
+        
         await self.send(text_data=json.dumps({
-            'type': 'partner_found', 'partner_peer_id': event['partner_peer_id']
+            'type': 'partner_found',
+            'role': event['role'],
+            'partner_peer_id': event['partner_peer_id'],
+            'coins': new_coins
         }))
-
-    async def coin_update(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'coin_update', 'coins': event['coins']
-        }))
-
-    async def call_ended_by_partner(self, event):
-        await self.send(text_data=json.dumps({'type': 'call_ended_by_partner'}))
