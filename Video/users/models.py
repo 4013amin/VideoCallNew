@@ -11,9 +11,7 @@ class Profile(models.Model):
     coins = models.IntegerField(default=5)
 
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
+
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.IntegerField(verbose_name="مبلغ به تومان")
@@ -24,8 +22,7 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.amount} Toman"
-=======
->>>>>>> be00637
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -33,9 +30,5 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-<<<<<<< HEAD
     instance.profile.save()
-=======
-    instance.profile.save()
->>>>>>> ebfedfa (some message)
->>>>>>> be00637
+
