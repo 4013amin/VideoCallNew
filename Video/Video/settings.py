@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2. تنظیمات امنیتی
 SECRET_KEY = 'django-insecure-z99pomn$%biaz+4i@vaopd2wp(%+-^s&1jbbhc!4=iylhf_6#k'
-DEBUG = False # برای لیارا حتما False باشد
+DEBUG = False 
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["https://*.liara.run"] 
 
@@ -19,7 +19,7 @@ DATABASES = {
 
 # 4. اپلیکیشن‌ها
 INSTALLED_APPS = [
-    'daphne', # باید اولین باشد
+    'daphne', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'videocall',
+    'channels'
 ]
 
 # 5. میانی‌افزارها (WhiteNoise برای استاتیک)
