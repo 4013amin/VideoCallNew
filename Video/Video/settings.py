@@ -78,7 +78,7 @@ else:
             'BACKEND': 'channels_redis.core.RedisChannelLayer',
             'CONFIG': {
                 # لینک ردیس لیارا را اینجا بگذارید (مثال: redis://:pass@host:port)
-                "hosts": [('redis://YOUR_REDIS_URL_HERE')], 
+                "hosts": [('redis://:cpipMvoFxnKnOOosaQIvmZyz@videocallnewredits:6379/0')], 
             },
         },
     }
