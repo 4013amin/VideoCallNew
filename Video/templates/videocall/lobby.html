@@ -4,35 +4,33 @@
 {% block title %}Video Chat Lobby{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 font-sans">
+<!-- Main Container -->
+<div class="min-h-screen bg-slate-950 flex flex-col items-center justify-start sm:justify-center p-2 sm:p-4 font-sans overflow-hidden">
     
-    <div class="max-w-6xl w-full space-y-6">
+    <div class="max-w-6xl w-full space-y-3 sm:space-y-6">
         
         <!-- Header: Status & Coins -->
-        <div class="flex flex-col sm:flex-row items-center justify-between bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800 shadow-xl">
-            <!-- Left: Status -->
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <div id="status-icon" class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center transition-colors duration-300">
-                    <i class="fa-solid fa-wifi text-white/50"></i>
+        <div class="flex flex-row items-center justify-between bg-slate-900/80 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-xl z-50">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div id="status-icon" class="w-8 h-8 sm:w-10 sm:h-10 bg-slate-700 rounded-full flex items-center justify-center transition-colors duration-300">
+                    <i class="fa-solid fa-wifi text-white/50 text-xs sm:text-base"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-white">Random Chat</h1>
-                    <p id="connection-status" class="text-xs text-slate-400 font-mono">Initializing...</p>
+                    <h1 class="text-xs sm:text-xl font-bold text-white leading-tight">Random Chat</h1>
+                    <p id="connection-status" class="text-[9px] sm:text-xs text-slate-400 font-mono">Initializing...</p>
                 </div>
             </div>
 
-            <!-- Right: Coins -->
-            <div class="mt-4 sm:mt-0 flex items-center gap-4 bg-slate-800 px-4 py-2 rounded-xl border border-slate-700 w-full sm:w-auto justify-between sm:justify-start">
+            <div class="flex items-center gap-2 sm:gap-4 bg-slate-800 p-1.5 sm:p-2 px-2 sm:px-4 rounded-xl border border-slate-700">
                 <div class="text-right">
-                    <p class="text-[10px] text-slate-400 uppercase font-bold">Your Coins</p>
-                    <div class="flex items-center justify-end gap-1 text-yellow-400 font-mono text-xl font-bold">
-                        <i class="fa-solid fa-coins"></i>
+                    <p class="text-[8px] sm:text-[10px] text-slate-400 uppercase font-bold">Coins</p>
+                    <div class="flex items-center justify-end gap-1 text-yellow-400 font-mono text-sm sm:text-xl font-bold">
+                        <i class="fa-solid fa-coins text-xs"></i>
                         <span id="coin-count">{{ coins }}</span>
                     </div>
                 </div>
-                
                 <form action="{% url 'purchase' %}" method="GET">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition shadow-lg shadow-indigo-500/20 active:scale-95">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] sm:text-xs font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg transition active:scale-95">
                         + Buy
                     </button>
                 </form>
@@ -40,44 +38,66 @@
         </div>
 
         <!-- Main Video Area -->
-        <div class="relative w-full aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-slate-800 group">
+        <div class="relative w-full h-[65vh] sm:h-auto sm:aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-slate-800 group">
             
-            <!-- 1. Remote Video (Full Screen) -->
+            <!-- 1. Remote Video (Partner) -->
+            <!-- playsinline و autoplay برای موبایل حیاتی هستند -->
             <video id="remoteVideo" class="w-full h-full object-cover hidden" autoplay playsinline></video>
             
-            <!-- 2. Placeholder UI (Waiting Mode) -->
-            <div id="placeholder-ui" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 text-center z-10 transition-all duration-300">
-                <div class="relative w-24 h-24 mb-6">
+            <!-- 2. Placeholder UI (Waiting Screen) -->
+            <div id="placeholder-ui" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 text-center z-10 p-6">
+                <div class="relative w-20 h-20 sm:w-24 sm:h-24 mb-6">
                     <div class="w-full h-full bg-slate-800 rounded-full flex items-center justify-center relative z-10">
-                        <i class="fa-solid fa-user-astronaut text-4xl text-slate-500"></i>
+                        <i class="fa-solid fa-user-astronaut text-3xl sm:text-4xl text-slate-500"></i>
                     </div>
                     <div id="search-spinner" class="absolute inset-[-4px] border-4 border-indigo-500 rounded-full border-t-transparent animate-spin hidden"></div>
                     <div id="pulse-ring" class="absolute inset-0 bg-indigo-500 rounded-full animate-ping opacity-20 hidden"></div>
                 </div>
-                <h3 id="status-text" class="text-white text-2xl font-bold mb-2">Ready to Start</h3>
-                <p class="text-slate-400 text-sm max-w-md px-4">Click the button below to find a random partner.</p>
+                <h3 id="status-text" class="text-white text-lg sm:text-2xl font-bold mb-2">Ready to Start</h3>
+                <p class="text-slate-400 text-xs sm:text-sm max-w-xs px-4">Find a random partner and start video chatting.</p>
             </div>
 
-            <!-- 3. Local Video (Picture in Picture) -->
-            <div class="absolute top-4 right-4 w-28 sm:w-48 aspect-video bg-slate-800 rounded-xl overflow-hidden shadow-2xl border-2 border-slate-700/50 z-20 hover:scale-105 transition-transform duration-300">
+            <!-- 3. Local Video (PIP - You) -->
+            <!-- muted="true" اینجا خیلی مهم است تا صدای خودتان اکو نشود -->
+            <div class="absolute top-3 right-3 w-24 sm:w-48 aspect-video bg-slate-800 rounded-xl overflow-hidden shadow-2xl border-2 border-slate-700/50 z-20 transition-transform">
                 <video id="localVideo" class="w-full h-full object-cover transform -scale-x-100" autoplay muted playsinline></video>
-                <div class="absolute bottom-1 right-2 text-[10px] font-bold text-white/90 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm">YOU</div>
+                
+                <!-- Local Controls -->
+                <div class="absolute bottom-1 left-1 flex gap-1 z-30">
+                    <button id="toggleMic" class="w-6 h-6 bg-black/50 hover:bg-black/70 rounded flex items-center justify-center text-white text-[10px] transition">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <button id="toggleVideo" class="w-6 h-6 bg-black/50 hover:bg-black/70 rounded flex items-center justify-center text-white text-[10px] transition">
+                        <i class="fa-solid fa-video"></i>
+                    </button>
+                </div>
+                <div class="absolute bottom-1 right-2 text-[8px] sm:text-[10px] font-bold text-white/90 bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm">YOU</div>
             </div>
 
-            <!-- 4. Controls -->
-            <div class="absolute bottom-8 left-0 right-0 flex justify-center gap-4 z-30 px-4">
-                <button id="findBtn" disabled class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white px-8 py-4 rounded-full font-bold shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 min-w-[200px] justify-center">
+            <!-- 4. Emergency Unmute Overlay (Mobile Fix) -->
+            <div id="audio-overlay" class="absolute inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden">
+                <button id="force-unmute-btn" class="bg-red-600 animate-pulse text-white px-6 py-4 rounded-full font-bold shadow-2xl text-lg flex items-center gap-3">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <span>TAP TO ENABLE AUDIO</span>
+                </button>
+            </div>
+
+            <!-- 5. Main Controls -->
+            <div class="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-30 px-4 pointer-events-none">
+                <!-- pointer-events-auto added to buttons so they work while container passes clicks -->
+                
+                <button id="findBtn" disabled class="pointer-events-auto bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-xl transition-all active:scale-95 flex items-center gap-2 sm:gap-3 min-w-[160px] sm:min-w-[200px] justify-center text-sm sm:text-base">
                     <i class="fa-solid fa-bolt"></i>
-                    <span>Connecting...</span>
+                    <span>Start Matching</span>
                 </button>
 
-                <button id="nextBtn" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-full font-bold shadow-xl shadow-emerald-500/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 min-w-[160px] justify-center">
-                    <span>Next Person</span>
+                <button id="nextBtn" class="hidden pointer-events-auto bg-emerald-600 hover:bg-emerald-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-xl transition-all active:scale-95 flex items-center gap-2 sm:gap-3 min-w-[140px] sm:min-w-[160px] justify-center text-sm sm:text-base">
+                    <span>Next</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
 
-                <button id="stopBtn" class="hidden bg-rose-600 hover:bg-rose-500 text-white w-14 h-14 rounded-full font-bold shadow-xl shadow-rose-500/30 transition-all hover:scale-110 active:scale-90 flex items-center justify-center">
-                    <i class="fa-solid fa-phone-slash text-xl"></i>
+                <button id="stopBtn" class="hidden pointer-events-auto bg-rose-600 hover:bg-rose-500 text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full font-bold shadow-xl transition-all active:scale-90 flex items-center justify-center">
+                    <i class="fa-solid fa-phone-slash text-lg sm:text-xl"></i>
                 </button>
             </div>
         </div>
@@ -87,18 +107,19 @@
 
 {% block scripts %}
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-
 <script>
+    // تنظیمات سرورهای STUN برای عبور از NAT
     const PEER_CONFIG = {
-        config: {
+        config: { 
             iceServers: [
-                { url: 'stun:stun.l.google.com:19302' },
-                { url: 'stun:stun1.l.google.com:19302' },
-            ]
+                { url: 'stun:stun.l.google.com:19302' }, 
+                { url: 'stun:stun1.l.google.com:19302' }
+            ] 
         }
     };
 
-    const elements = {
+    // کش کردن المان‌ها
+    const el = {
         localVideo: document.getElementById('localVideo'),
         remoteVideo: document.getElementById('remoteVideo'),
         placeholder: document.getElementById('placeholder-ui'),
@@ -111,6 +132,10 @@
         coinCount: document.getElementById('coin-count'),
         connStatus: document.getElementById('connection-status'),
         statusIcon: document.getElementById('status-icon'),
+        toggleMic: document.getElementById('toggleMic'),
+        toggleVideo: document.getElementById('toggleVideo'),
+        audioOverlay: document.getElementById('audio-overlay'),
+        forceUnmuteBtn: document.getElementById('force-unmute-btn')
     };
 
     let state = {
@@ -118,38 +143,61 @@
         peer: null,
         ws: null,
         currentCall: null,
-        peerId: null
+        peerId: null,
+        micEnabled: true,
+        videoEnabled: true
     };
 
+    // 1. راه‌اندازی اولیه و دریافت دسترسی دوربین
     async function init() {
         try {
             updateStatusUI('loading', 'Accessing Camera...');
-            state.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            elements.localVideo.srcObject = state.localStream;
-
-            updateStatusUI('loading', 'Connecting to Peer...');
-            state.peer = new Peer(undefined, PEER_CONFIG);
-
-            state.peer.on('open', (id) => {
-                state.peerId = id;
-                connectWebSocket(id);
+            
+            // تنظیمات بهینه صدا و تصویر برای موبایل
+            state.localStream = await navigator.mediaDevices.getUserMedia({ 
+                video: {
+                    facingMode: "user", // دوربین سلفی
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                }, 
+                audio: { 
+                    echoCancellation: true, // حذف اکو
+                    noiseSuppression: true, // حذف نویز
+                    autoGainControl: true   // تنظیم خودکار ولوم
+                } 
             });
 
-            state.peer.on('call', (call) => {
-                call.answer(state.localStream);
-                handleCallStream(call);
+            // تصویر خودمان باید Mute باشد تا اکو نشود
+            el.localVideo.srcObject = state.localStream;
+            el.localVideo.muted = true; 
+
+            // اتصال به PeerJS
+            state.peer = new Peer(undefined, PEER_CONFIG);
+            
+            state.peer.on('open', (id) => { 
+                state.peerId = id; 
+                connectWebSocket(id); 
+            });
+
+            state.peer.on('call', (call) => { 
+                // وقتی کسی زنگ زد، جواب بده
+                call.answer(state.localStream); 
+                handleCallStream(call); 
             });
 
             state.peer.on('error', (err) => {
-                console.error(err);
-                updateStatusUI('error', 'Network Error');
+                console.error("Peer Error:", err);
+                updateStatusUI('error', 'Connection Error');
             });
 
-        } catch (err) {
-            updateStatusUI('error', 'Camera Denied');
+        } catch (err) { 
+            console.error(err);
+            updateStatusUI('error', 'Camera/Mic Permission Denied'); 
+            alert("Please allow camera and microphone access to use this app.");
         }
     }
 
+    // 2. اتصال به وب‌سوکت جنگو
     function connectWebSocket(peerId) {
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
         const url = `${protocol}://${window.location.host}/ws/call/${peerId}/`;
@@ -157,107 +205,193 @@
 
         state.ws.onopen = () => {
             updateStatusUI('ready', 'Connected & Ready');
-            elements.findBtn.disabled = false;
-            elements.findBtn.querySelector('span').innerText = "Start Matching";
+            el.findBtn.disabled = false;
         };
 
-        state.ws.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            handleWsMessage(data);
+        state.ws.onmessage = (e) => handleWsMessage(JSON.parse(e.data));
+        
+        state.ws.onclose = () => {
+            updateStatusUI('error', 'Disconnected. Retrying...');
+            setTimeout(() => connectWebSocket(peerId), 3000);
         };
     }
 
+    // 3. مدیریت پیام‌های سرور
     function handleWsMessage(data) {
-        switch(data.type) {
-            case 'waiting_in_queue':
-                setUIMode('searching');
-                break;
-            case 'partner_found':
-                setUIMode('found');
-                elements.coinCount.innerText = data.coins;
-                if (data.role === 'initiator') {
-                    setTimeout(() => {
-                        const call = state.peer.call(data.partner_peer_id, state.localStream);
-                        handleCallStream(call);
-                    }, 1000);
-                }
-                break;
-            case 'out_of_coins':
-                setUIMode('idle');
-                alert('Not enough coins!');
-                break;
+        if(data.type === 'waiting_in_queue') {
+            setUIMode('searching');
+            el.statusText.innerText = "Looking for someone...";
+        }
+        
+        if(data.type === 'partner_found') {
+            setUIMode('found');
+            el.coinCount.innerText = data.coins;
+            el.statusText.innerText = "Partner Found!";
+            
+            if (data.role === 'initiator') {
+                // تاخیر کوچک برای اطمینان از آمادگی طرف مقابل
+                setTimeout(() => {
+                    const call = state.peer.call(data.partner_peer_id, state.localStream);
+                    handleCallStream(call);
+                }, 1000);
+            }
+        }
+        
+        if(data.type === 'partner_disconnected') {
+            endCall(false);
+            el.statusText.innerText = "Partner Disconnected";
+            setTimeout(() => {
+                if(el.nextBtn.classList.contains('hidden')) setUIMode('idle');
+            }, 2000);
         }
     }
 
+    // 4. مدیریت استریم ویدیوی طرف مقابل (مهم‌ترین بخش برای صدا)
     function handleCallStream(call) {
+        // بستن تماس قبلی اگر وجود داشت
+        if (state.currentCall) state.currentCall.close();
+        
         state.currentCall = call;
+        
         call.on('stream', (remoteStream) => {
-            elements.remoteVideo.srcObject = remoteStream;
+            console.log("Remote stream received");
+            
+            el.remoteVideo.srcObject = remoteStream;
+            el.remoteVideo.classList.remove('hidden');
+            el.placeholder.classList.add('hidden');
+            
+            // **حیاتی برای موبایل:**
+            el.remoteVideo.muted = false; // صدا وصل
+            el.remoteVideo.volume = 1.0;  // ولوم حداکثر
+            
+            // تلاش برای پخش
+            const playPromise = el.remoteVideo.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("Playing successfully");
+                }).catch(error => {
+                    console.warn("Autoplay prevented:", error);
+                    // اگر مرورگر جلوی پخش را گرفت، دکمه قرمز بزرگ را نشان بده
+                    el.audioOverlay.classList.remove('hidden');
+                });
+            }
+            
             setUIMode('connected');
         });
+
         call.on('close', () => endCall(false));
+        call.on('error', () => endCall(false));
     }
 
+    // 5. دکمه اضطراری وصل صدا
+    el.forceUnmuteBtn.addEventListener('click', () => {
+        el.remoteVideo.muted = false;
+        el.remoteVideo.play();
+        el.audioOverlay.classList.add('hidden');
+    });
+
+    // 6. توابع UI و کمکی
     function endCall(notifyServer = true) {
         if (state.currentCall) state.currentCall.close();
         state.currentCall = null;
-        elements.remoteVideo.srcObject = null;
+        
+        el.remoteVideo.srcObject = null;
+        el.audioOverlay.classList.add('hidden');
+        
         setUIMode('idle');
+        el.statusText.innerText = "Ready to Start";
+        
         if (notifyServer && state.ws.readyState === WebSocket.OPEN) {
             state.ws.send(JSON.stringify({ type: 'end_call' }));
         }
     }
 
     function setUIMode(mode) {
-        elements.spinner.classList.add('hidden');
-        elements.pulse.classList.add('hidden');
-        elements.remoteVideo.classList.add('hidden');
-        elements.placeholder.classList.remove('hidden');
-        elements.findBtn.classList.add('hidden');
-        elements.nextBtn.classList.add('hidden');
-        elements.stopBtn.classList.add('hidden');
+        el.spinner.classList.add('hidden');
+        el.pulse.classList.add('hidden');
+        
+        // دکمه‌ها را ریست کن
+        el.findBtn.classList.add('hidden');
+        el.nextBtn.classList.add('hidden');
+        el.stopBtn.classList.add('hidden');
+
+        if (mode !== 'connected') {
+            el.remoteVideo.classList.add('hidden');
+            el.placeholder.classList.remove('hidden');
+        }
 
         if (mode === 'idle') {
-            elements.findBtn.classList.remove('hidden');
-            elements.statusText.innerText = "Ready to Connect";
+            el.findBtn.classList.remove('hidden');
         } else if (mode === 'searching') {
-            elements.spinner.classList.remove('hidden');
-            elements.statusText.innerText = "Searching...";
+            el.spinner.classList.remove('hidden');
+            el.stopBtn.classList.remove('hidden'); // اجازه لغو جستجو
         } else if (mode === 'found') {
-            elements.pulse.classList.remove('hidden');
-            elements.statusText.innerText = "Connecting to Partner...";
+            el.pulse.classList.remove('hidden');
         } else if (mode === 'connected') {
-            elements.placeholder.classList.add('hidden');
-            elements.remoteVideo.classList.remove('hidden');
-            elements.nextBtn.classList.remove('hidden');
-            elements.stopBtn.classList.remove('hidden');
+            el.nextBtn.classList.remove('hidden');
+            el.stopBtn.classList.remove('hidden');
         }
     }
 
     function updateStatusUI(type, msg) {
-        elements.connStatus.innerText = msg;
+        el.connStatus.innerText = msg;
         if (type === 'ready') {
-            elements.statusIcon.innerHTML = '<i class="fa-solid fa-wifi text-emerald-400"></i>';
-            elements.statusIcon.className = "w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center";
+            el.statusIcon.innerHTML = '<i class="fa-solid fa-wifi text-emerald-400"></i>';
+            el.statusIcon.className = "w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500/20 rounded-full flex items-center justify-center";
         } else if (type === 'error') {
-            elements.statusIcon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i>';
-            elements.statusIcon.className = "w-10 h-10 bg-rose-500/20 rounded-full flex items-center justify-center";
+            el.statusIcon.innerHTML = '<i class="fa-solid fa-exclamation text-rose-500"></i>';
         } else {
-            elements.statusIcon.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-white/50"></i>';
+            el.statusIcon.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-white/50"></i>';
         }
     }
 
-    elements.findBtn.addEventListener('click', () => {
-        state.ws.send(JSON.stringify({ type: 'find_partner' }));
+    // 7. رویدادهای دکمه‌ها
+    
+    // ترفند: با زدن دکمه Find، یک صدای خالی پخش کن تا قفل صدای مرورگر باز شود
+    el.findBtn.addEventListener('click', () => {
+        // باز کردن قفل صدا در iOS/Android
+        if (el.remoteVideo) {
+            el.remoteVideo.muted = false;
+            // تلاش برای پخش یک لحظه‌ای (حتی اگر سورس نداشته باشد اشکالی ندارد)
+            el.remoteVideo.play().catch(e => {}); 
+        }
+
+        if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+            state.ws.send(JSON.stringify({ type: 'find_partner' }));
+        }
     });
 
-    elements.nextBtn.addEventListener('click', () => {
-        endCall(true);
-        setTimeout(() => state.ws.send(JSON.stringify({ type: 'find_partner' })), 500);
+    el.nextBtn.addEventListener('click', () => { 
+        endCall(true); 
+        // تاخیر کوتاه برای جلوگیری از اسپم
+        setUIMode('searching');
+        setTimeout(() => { 
+            if (state.ws && state.ws.readyState === WebSocket.OPEN) 
+                state.ws.send(JSON.stringify({ type: 'find_partner' })); 
+        }, 500); 
+    });
+    
+    el.stopBtn.addEventListener('click', () => endCall(true));
+
+    // کنترل‌های لوکال
+    el.toggleMic.addEventListener('click', () => {
+        state.micEnabled = !state.micEnabled;
+        state.localStream.getAudioTracks()[0].enabled = state.micEnabled;
+        el.toggleMic.innerHTML = state.micEnabled ? 
+            '<i class="fa-solid fa-microphone"></i>' : 
+            '<i class="fa-solid fa-microphone-slash text-red-500"></i>';
     });
 
-    elements.stopBtn.addEventListener('click', () => endCall(true));
+    el.toggleVideo.addEventListener('click', () => {
+        state.videoEnabled = !state.videoEnabled;
+        state.localStream.getVideoTracks()[0].enabled = state.videoEnabled;
+        el.toggleVideo.innerHTML = state.videoEnabled ? 
+            '<i class="fa-solid fa-video"></i>' : 
+            '<i class="fa-solid fa-video-slash text-red-500"></i>';
+    });
 
+    // شروع برنامه
     init();
 </script>
 {% endblock %}
